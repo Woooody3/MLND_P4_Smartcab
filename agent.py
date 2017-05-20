@@ -46,10 +46,9 @@ class LearningAgent(Agent):
             self.epsilon = 0
             self.alpha = 0
         else:
-            #self.epsilon -= 0.05 ###default Q-Learning decay function
+            #self.epsilon -= 0.05   #default Q-Learning decay function
             self.t += 1
-            self.epsilon = math.pow(self.a, self.t)
-            #self.epsilon = math.exp(self.a * self.t)
+            self.epsilon = math.pow(self.a, self.t) #imporved Q-Learning decay function
 
         return None
 
@@ -67,7 +66,7 @@ class LearningAgent(Agent):
         ## TO DO ## 
         ###########
         # Set 'state' as a tuple of relevant data for the agent        
-        state = (waypoint, inputs['light'], inputs['left'], inputs['oncoming']) # inputs['right'] isn't chosen
+        state = (waypoint, inputs['light'], inputs['left']=='forward', inputs['oncoming']) # inputs['right'] isn't chosen
         return state
 
 
@@ -111,7 +110,7 @@ class LearningAgent(Agent):
         ## TO DO ##
         ###########
         # When not learning, choose a random action
-        # When learning, choose a random action with 'epsilon' probability #########################SMART
+        # When learning, choose a random action with 'epsilon' probability ###SMART
         #   Otherwise, choose an action with the highest Q-value for the current state
         
         maxQ = self.get_maxQ(state)
@@ -120,8 +119,9 @@ class LearningAgent(Agent):
         elif self.epsilon > random.random():
             action = random.choice(self.valid_actions)
         else:
-            action = self.Q[state].keys()[self.Q[state].values().index(maxQ)]              
-            #action = lambda x: Q['state']['x'] = get_maxQ(state) 
+            action = random.choice([key for key, value in self.Q[state].items() if value == maxQ]) #V2, random select key if several max value keys available    
+            #action = self.Q[state].keys()[self.Q[state].values().index(maxQ)]  #V1, workable, but return only the first key if several max value keys available           
+            #action = lambda x: Q['state']['x'] = get_maxQ(state)   ###V0, do not work
         return action
 
 
