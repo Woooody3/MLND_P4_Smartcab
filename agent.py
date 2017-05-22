@@ -8,7 +8,7 @@ class LearningAgent(Agent):
     """ An agent that learns to drive in the Smartcab world.
         This is the object you will be modifying. """ 
 
-    def __init__(self, env, learning=False, epsilon=0.99, alpha=0.1):
+    def __init__(self, env, learning=False, epsilon=0.986, alpha=0.1):
         super(LearningAgent, self).__init__(env)     # Set the agent in the evironment 
         self.planner = RoutePlanner(self.env, self)  # Create a route planner
         self.valid_actions = self.env.valid_actions  # The set of valid actions
@@ -24,7 +24,7 @@ class LearningAgent(Agent):
         ###########
         # Set any additional class parameters as needed
         self.t = 0      ###for number of trials
-        self.a = 0.99   ###constant for decay function
+        self.a = 0.986   ###constant for decay function
         self.gamma = 0  ###discount factor
 
     def reset(self, destination=None, testing=False):
@@ -66,7 +66,7 @@ class LearningAgent(Agent):
         ## TO DO ## 
         ###########
         # Set 'state' as a tuple of relevant data for the agent        
-        state = (waypoint, inputs['light'], inputs['left']=='forward', inputs['oncoming']) # inputs['right'] isn't chosen
+        state = (waypoint, inputs['light'], inputs['left']=='forward', inputs['oncoming']) # inputs['right'], inputs['left']!= 'forward' are excluded
         return state
 
 
@@ -113,14 +113,13 @@ class LearningAgent(Agent):
         # When learning, choose a random action with 'epsilon' probability ###SMART
         #   Otherwise, choose an action with the highest Q-value for the current state
         
-        maxQ = self.get_maxQ(state)
         if self.learning == False:
             action = random.choice(self.valid_actions)
         elif self.epsilon > random.random():
             action = random.choice(self.valid_actions)
         else:
-            action = random.choice([key for key, value in self.Q[state].items() if value == maxQ]) #V2, random select key if several max value keys available    
-            #action = self.Q[state].keys()[self.Q[state].values().index(maxQ)]  #V1, workable, but return only the first key if several max value keys available           
+            action = random.choice([key for key, value in self.Q[state].items() if value == self.get_maxQ(state)]) #V2, random select key if several max value keys available    
+            #action = self.Q[state].keys()[self.Q[state].values().index(self.get_maxQ(state))]  #V1, workable, but return only the first key if several max value keys available           
             #action = lambda x: Q['state']['x'] = get_maxQ(state)   ###V0, do not work
         return action
 
@@ -135,8 +134,11 @@ class LearningAgent(Agent):
         ###########
         # When learning, implement the value iteration update rule
         #   Use only the learning rate 'alpha' (do not use the discount factor 'gamma')
-        self.Q[state][action] += self.alpha * (reward + self.gamma * self.get_maxQ(state) - self.Q[state][action])
-        #self.Q[state][action] += self.alpha * (reward - self.Q[state][action])
+
+        if self.learning == True:
+            self.Q[state][action] += self.alpha * (reward + self.gamma * self.get_maxQ(state) - self.Q[state][action]) #equation with future reward
+            #self.Q[state][action] += self.alpha * (reward - self.Q[state][action])
+
         return
 
 
@@ -194,7 +196,7 @@ def run():
     # Flags:
     #   tolerance  - epsilon tolerance before beginning testing, default is 0.05 
     #   n_test     - discrete number of testing trials to perform, default is 0
-    sim.run(tolerance=0.10, n_test=20)
+    sim.run(tolerance=0.05, n_test=33)
 
 
 if __name__ == '__main__':
