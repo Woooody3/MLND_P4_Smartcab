@@ -16372,11 +16372,12 @@ gg==
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p><strong>Answer:</strong> 
-The state I build includes 4 sensor data: waypoint, lights, cars on left side, and cars on oncoming side.<br>
+The state I build includes 4 sensor data: waypoint, lights, cars on left side, and cars on oncoming side. All dummy agent is set as always following the rules.
+<br>
 <br>
 Example 1: ('left', 'green', False, 'right')</p>
 <ul>
-<li>Q-table fits to optimal policy: 'forward'. If agent takes no action, there might be a minor violation to the car behind it since it's green light; and if agent takes left turn, there might be a major acident that collapsing into the car from oncoming side; and if agent takes forward move or right turn, it's clear to go. And moving forward will be closer to destination compared to turn right.
+<li>Q-table <strong>fits</strong> to optimal policy: 'forward'. If agent takes no action, there might be a minor violation to the car behind it since it's green light; and if agent takes left turn, there might be a major acident that collapsing into the car from oncoming side; and if agent takes forward move or right turn, it's clear to go. And moving forward will be closer to destination compared to turn right.<br>
 -- forward : 0.56
 -- None : -1.36
 -- right : 0.22
@@ -16384,7 +16385,7 @@ Example 1: ('left', 'green', False, 'right')</p>
 </ul>
 <p>Example 2: ('right', 'green', True, 'left')</p>
 <ul>
-<li>Q-table fits to optimal policy: None. If agent takes turns or moves forward, it might be collapsed with left side car who moves forward or with oncoming car who turns left; on the other hand, if agent takes no action, it would avoid making the accident(left side and oncoming side cars) worse.
+<li>Q-table(None) <strong>dosen't fit</strong> to optimal policy: 'right'. The agent tries to turn right with a green light,it gets higher priority than other cars and thus good to go. The oncoming side car will yield to agent since the dummy agent always follow the rule. (wish one day I can make a upgrade code to deal with the situation that oncoming car dosen't yeild)<br>
 -- forward : 0.00
 -- None : 0.84
 -- right : 0.00
@@ -16392,19 +16393,19 @@ Example 1: ('left', 'green', False, 'right')</p>
 </ul>
 <p>Example 3: ('left', 'green', True, 'left')</p>
 <ul>
-<li>Q-table ('left' ) dosen't fit to optimal policy (None): in this case, agent trys to turn left under a green light, while the car on the left side moves forward which violates the rules and will collapes with the oncoming car turing left. Although highest value in Q-table is left, but in fact the best action is idled to avoid making the accident worse. 
+<li>Q-table <strong>fits</strong> to optimal policy :'left' . The agent tries to turn left with a green light, and good to go left. The oncoming side car turns left together with agent, and they won't violate to each other. The left side car will stop to it's red light although it attemps to go forward.<br>
 -- forward : 0.19
 -- None : 0.01
 -- right : 0.07
 -- left : 0.57</li>
 </ul>
-<p>Example 4: ('right', 'green', True, 'right')</p>
+<p>Example 4: ('right', 'red', False, None)</p>
 <ul>
-<li>Q-table ('right' ) dosen't fit to optimal policy (None): in this case, agent trys to turn right under a green light, while the car on the left side moves forward which violates the rules and will collapes with agent if agent dose turns or moves forward. Although highest value in Q-table is right, but in fact the best action is idled to avoid making an accident. 
--- forward : 0.00
--- None : 0.00
--- right : 0.42
--- left : -3.96</li>
+<li>Q-table (None) <strong>dosen't fit</strong> to optimal policy ('right'): The agent tries to turn right with a red light. There is oncoming side car, and left side car isn't forwarding. According to US driving rules, agent is good to turn right since it will violate no one.<br>
+-- forward : -9.55
+-- None : 2.00
+-- right : 1.52
+-- left : -10.13</li>
 </ul>
 
 </div>
